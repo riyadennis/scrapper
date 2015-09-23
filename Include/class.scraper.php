@@ -29,7 +29,12 @@ class Scrapper
     public function __construct($url)
     {
         $client = new Client();
-        $this->url = $url;
+        if($this->checkUrlExists($url)){
+            $this->url = $url;
+        }else {
+            throw new Exception("Invalid URL");
+        }
+        
         $this->crawler = $client->request('GET', $this->url);
     }
     /**
@@ -100,6 +105,27 @@ class Scrapper
         $html = curl_exec($ch);
         $kilobites = round(mb_strlen($html) / 1024, 3);
         return $kilobites . "kb";
+    }
+    /**
+     * Function that can be used to validate a url 
+     * 
+     * @param string $url
+     * @return boolean
+     */
+    public function checkUrlExists($url)
+    {
+        $c = curl_init();
+        curl_setopt($c, CURLOPT_URL, $url);
+        curl_setopt($c, CURLOPT_HEADER, 1); //get the header
+        curl_setopt($c, CURLOPT_NOBODY, 1); //and *only* get the header
+        curl_setopt($c, CURLOPT_RETURNTRANSFER, 1); //get the response as a string from curl_exec(), rather than echoing it
+        curl_setopt($c, CURLOPT_FRESH_CONNECT, 1); //don't use a cached version of the url
+        if (!curl_exec($c)) {
+            //echo $url.' inexists';
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }
