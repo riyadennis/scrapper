@@ -29,10 +29,10 @@ class Scrapper
     public function __construct($url)
     {
         $client = new Client();
-        if($this->checkUrlExists($url)){
+        if($url != "" && $this->checkUrlExists($url)){
             $this->url = $url;
         }else {
-            throw new Exception("Invalid URL");
+            throw new InvalidArgumentException("Invalid URL");
         }
         
         $this->crawler = $client->request('GET', $this->url);
@@ -44,6 +44,7 @@ class Scrapper
      */
     public function createJsonArray()
     {
+        $json_array = array();
         $title = $this->crawler->filterXPath('//div[@class="productInfoWrapper"]')->each(function($node) {
             $trimmed = trim($node->text());
             return str_replace(array('\r', '\n', '\t'), "", $trimmed);
