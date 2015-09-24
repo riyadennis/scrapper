@@ -12,6 +12,7 @@ Class TestScrapper extends \PHPUnit_Framework_TestCase
 {
     /**
      * Test the main function that actually do the scrapping and creates an array
+     * @covers Scapper::createJsonArray
      * 
      */
     public function testCreateJsonArray()
@@ -24,6 +25,7 @@ Class TestScrapper extends \PHPUnit_Framework_TestCase
     }
     /*
      * Function to test cleanData which removes unwanted chars from title and price
+     * @covers Scrapper::cleanData
      * 
      */
     public function testCleanData()
@@ -37,6 +39,8 @@ Class TestScrapper extends \PHPUnit_Framework_TestCase
     /**
      * tests getSize function
      * ANy url given it should give a value
+     * @covers Scapper::getSize
+     * 
      */
     public function testgetSize()
     {
@@ -48,6 +52,7 @@ Class TestScrapper extends \PHPUnit_Framework_TestCase
      * Test checkUrlExists function in the scrapper class
      * if bad url returns false hence have put assertfalse
      * if good url return tru hance asserttrue
+     *@covers Scapper::checkUrlExists
      * 
      */
     public function testCheckurlexists()
