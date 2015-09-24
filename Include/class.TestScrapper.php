@@ -10,6 +10,19 @@ require 'vendor/autoload.php';
 
 Class TestScrapper extends \PHPUnit_Framework_TestCase
 {
+    public $scrapper;
+    public $url;
+    /**
+     * setup function to set scrapper class object and url to test
+     * 
+     */
+    public function setUp()
+    {
+        parent::setUp();
+        $this->url = "http://www.sainsburys.co.uk/webapp/wcs/stores/servlet/CategoryDisplay?msg=&langId=44&categoryId=185749&storeId=10151&krypto=XkNJuRN9KLq6n6uH5Mz8vPJfKTPApwG8ucakhoeAQfAFnb5qGoUjeNIcE37XJqsLFKgqJpn0KSE2%0A4jWWsyGCqL9MrFzaSCurcTmEROPW2THpmiThWdfCBMkVMSAzC8evzTjPcnXztC7gZGu6swc%2BYE%2Bg%0Ar8dazzckCO9eiVbSKD7I%2BqoK45FoyfB5vK58kXkI%2FokZVqWZgIcEc7yXITiZeunS4A409YSjTfwF%0A9Y8J5255LV9jsLZBkMAnB%2Fl6zy53JRXhDEg%2BB7w7Lls7d16DjbsU0i4zzK4W15E%2BSTHddb4%3D#langId=44&storeId=10151&catalogId=10137&categoryId=185749&parent_category_rn=12518&top_category=12518&pageSize=20&orderBy=FAVOURITES_FIRST&searchTerm=&beginIndex=0&hideFilters=true";
+        $this->scrapper = new \Scrapper($this->url);
+        
+    }
     /**
      * Test the main function that actually do the scrapping and creates an array
      * @covers Scapper::createJsonArray
@@ -17,10 +30,7 @@ Class TestScrapper extends \PHPUnit_Framework_TestCase
      */
     public function testCreateJsonArray()
     {
-//       $url = "http://www.sainsburys.co.uk/";
-        $url = "http://www.sainsburys.co.uk/webapp/wcs/stores/servlet/CategoryDisplay?msg=&langId=44&categoryId=185749&storeId=10151&krypto=XkNJuRN9KLq6n6uH5Mz8vPJfKTPApwG8ucakhoeAQfAFnb5qGoUjeNIcE37XJqsLFKgqJpn0KSE2%0A4jWWsyGCqL9MrFzaSCurcTmEROPW2THpmiThWdfCBMkVMSAzC8evzTjPcnXztC7gZGu6swc%2BYE%2Bg%0Ar8dazzckCO9eiVbSKD7I%2BqoK45FoyfB5vK58kXkI%2FokZVqWZgIcEc7yXITiZeunS4A409YSjTfwF%0A9Y8J5255LV9jsLZBkMAnB%2Fl6zy53JRXhDEg%2BB7w7Lls7d16DjbsU0i4zzK4W15E%2BSTHddb4%3D#langId=44&storeId=10151&catalogId=10137&categoryId=185749&parent_category_rn=12518&top_category=12518&pageSize=20&orderBy=FAVOURITES_FIRST&searchTerm=&beginIndex=0&hideFilters=true";
-        $scrapper = new \Scrapper($url);
-        $json_array = $scrapper->createJsonArray();
+        $json_array = $this->scrapper->createJsonArray();
         $this->assertNotEmpty($json_array);
     }
     /*
@@ -30,9 +40,8 @@ Class TestScrapper extends \PHPUnit_Framework_TestCase
      */
     public function testCleanData()
     {
-        $scrapper = new \Scrapper("http://www.sainsburys.co.uk/");
-        $cleaned = $scrapper->cleanData("%%clean%%");
-        $cleaned_price = $scrapper->cleanData("3.4/t/t");
+        $cleaned = $this->scrapper->cleanData("%%clean%%");
+        $cleaned_price = $this->scrapper->cleanData("3.4/t/t");
         $this->assertNotContains('\t', $cleaned_price);
         $this->assertNotContains('$', $cleaned);
     }
@@ -44,8 +53,7 @@ Class TestScrapper extends \PHPUnit_Framework_TestCase
      */
     public function testgetSize()
     {
-        $scrapper = new \Scrapper("http://www.sainsburys.co.uk/");
-        $size = $scrapper->getSize("http://www.sainsburys.co.uk/");
+        $size = $this->scrapper->getSize("http://www.sainsburys.co.uk/");
         $this->assertNotNull($size);
     }
     /*
@@ -57,10 +65,9 @@ Class TestScrapper extends \PHPUnit_Framework_TestCase
      */
     public function testCheckurlexists()
     {
-        $scrapper = new \Scrapper("http://www.sainsburys.co.uk/");
-        $exists = $scrapper->checkUrlExists("http://www.sainsburys.co.uk/");
+        $exists = $this->scrapper->checkUrlExists("http://www.sainsburys.co.uk/");
         $this->assertTrue($exists);
-        $not_exists = $scrapper->checkUrlExists("http://www.testme");
+        $not_exists = $this->scrapper->checkUrlExists("http://www.testme");
         $this->assertFalse($not_exists);
     }
 
@@ -71,6 +78,13 @@ Class TestScrapper extends \PHPUnit_Framework_TestCase
     {
         $scrapper = new \Scrapper("dfdgfdf");
         $this->setExpectedException('InvalidArgumentException');
+    }
+    
+    public function tearDown()
+    {
+        parent::tearDown();
+        unset($this->scrapper);
+        unset($this->url);
     }
 
 }
