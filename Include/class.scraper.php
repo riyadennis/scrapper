@@ -10,69 +10,76 @@ class Scrapper
 
     /**
      *URL to be scrapped
-     * 
-     * @var string 
+     *
+     * @var string
      */
     public $url;
-    
+
     /**
      *Crawler object
-     * @var string 
+     * @var string
      */
     public $crawler;
 
     /**
      * Set the url and crawler.
-     * 
+     *
      * @param string $url
      */
     public function __construct($url)
     {
         $client = new Client();
-        if($url != "" && $this->checkUrlExists($url)){
+        if ($url != "" && $this->checkUrlExists($url)) {
             $this->url = $url;
-        }else {
+        } else {
             throw new InvalidArgumentException("Invalid URL");
         }
-        
+
         $this->crawler = $client->request('GET', $this->url);
     }
+
     /**
      * function that actually creates the array thats json encoded
-     * 
+     *
      * @return array
      */
     public function createJsonArray()
     {
         $json_array = array();
-        $title = $this->crawler->filterXPath('//div[@class="productInfoWrapper"]')->each(function($node) {
+        $title = $this->crawler->filterXPath('//ul/li/a')->each(function ($node) {
             $trimmed = trim($node->text());
             return str_replace(array('\r', '\n', '\t'), "", $trimmed);
         });
-        $price = $this->crawler->filterXPath('//p[@class="pricePerUnit"]')->each(function($node, $crawler) {
+        var_dump($title);
+        $price = $this->crawler->filterXPath('//div//p')->each(function ($node, $crawler) {
             $trimmed = trim($node->text());
             return str_replace(array('\r', '\n', '\t', '\u'), "", $trimmed);
         });
         for ($i = 0; $i < count($title); $i++) {
             $link = $this->crawler->selectLink($title[$i]);
-            if (!empty($link->links())) { //if there is valid link 
+            if (!empty($link->links())) { //if there is valid link
                 $uri = $link->link()->getUri();
                 $size = $this->getSize($uri);
             }
             $title_cleaned = $this->cleanData($title[$i]);
-            $price_cleaned = $this->cleanData($price[$i],true);
-            $json_array[] = array('title' => $title_cleaned,
+            $price_cleaned = $this->cleanData($price[$i], true);
+            $json_array[] = array(
+                'title' => $title_cleaned,
                 'unit_price' => $price_cleaned,
                 'size' => $size,
-                'description' => $title_cleaned);
+                'description' => $title_cleaned
+            );
         }
         return $json_array;
     }
+
     /**
      * Function that cleans invalid characters from a string
-     * 
-     * @param type $str
-     * @param type $numbers
+     *
+     * @param type      $str
+     * @param bool|type $numbers
+     *
+     * @return mixed
      */
     public function cleanData($str, $numbers = false)
     {
@@ -86,10 +93,12 @@ class Scrapper
         }
         return $str_cleaned;
     }
+
     /**
      * Function that calculated the size  from the url.
-     * 
+     *
      * @param string $uri
+     *
      * @return string
      */
     public function getSize($uri)
@@ -107,10 +116,12 @@ class Scrapper
         $kilobites = round(mb_strlen($html) / 1024, 3);
         return $kilobites . "kb";
     }
+
     /**
-     * Function that can be used to validate a url 
-     * 
+     * Function that can be used to validate a url
+     *
      * @param string $url
+     *
      * @return boolean
      */
     public function checkUrlExists($url)
@@ -119,10 +130,10 @@ class Scrapper
         curl_setopt($c, CURLOPT_URL, $url);
         curl_setopt($c, CURLOPT_HEADER, 1); //get the header
         curl_setopt($c, CURLOPT_NOBODY, 1); //and *only* get the header
-        curl_setopt($c, CURLOPT_RETURNTRANSFER, 1); //get the response as a string from curl_exec(), rather than echoing it
+        curl_setopt($c, CURLOPT_RETURNTRANSFER,
+            1); //get the response as a string from curl_exec(), rather than echoing it
         curl_setopt($c, CURLOPT_FRESH_CONNECT, 1); //don't use a cached version of the url
-        if (!curl_exec($c)) {
-            //echo $url.' inexists';
+        if (!curl_exec($c)) {;
             return false;
         } else {
             return true;
