@@ -1,11 +1,9 @@
 <?php
-/**
- * Class that does the scrapping
- */
-require 'vendor/autoload.php';
+namespace Scrapper\Src;
+
 use Goutte\Client;
 
-class Scrapper
+class ScrapperLib
 {
 
     /**
